@@ -1,24 +1,38 @@
 pipeline{
     agent any
+    tools{
+        jdk 'myjava'
+        maven 'mymaven'
+    }
     stages{
-        stage("compile"){
+        stage("COMPILE"){
             steps{
                 script{
                     echo "Compliling the code"
+                    sh 'mvn compile'
                 }
             }
         }
-        stage("Test"){
+        stage("TEST"){
             steps{
                 script{
                     echo "Testing the code"
+                    sh 'mvn test'
                 }
             }
         }
-        stage("Package"){
+        stage("PACKAGE"){
             steps{
                 script{
                     echo "packaging the code"
+                    sh 'mvn package'
+                }
+            }
+        }
+        stage("DEPLOY"){
+            steps{
+                script{
+                    echo "Deploying the code"
                 }
             }
         }
