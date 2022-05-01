@@ -1,8 +1,8 @@
 pipeline{
     agent none
     parameters{
-        choice(name:'VERSION', choices:['1.1.0','1.2.0','1.3.0'], description:'version of the code')
-        booleanParam(name:'ExecuteTests', defaultValue: true, description: 'tc validity')
+        choice(name:'VERSION',choices:['1.1.0','1.2.0','1.3.0'],description:'version of the code')
+        booleanParam(name:'ExecuteTests',defaultValue: true,description: 'tc validity')
     }
     tools{
         jdk 'myjava'
@@ -24,7 +24,7 @@ pipeline{
             agent any
             when{
                 expression{
-                    param.ExecuteTests == true
+                    params.ExecuteTests == true
                 }
             }
             steps{
@@ -53,7 +53,7 @@ pipeline{
             steps{
                 script{
                     echo "Deploying the code"
-                    echo "Deploying version ${param.VERSION}"
+                    echo "Deploying version ${params.VERSION}"
                 }
             }
         }
