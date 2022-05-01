@@ -2,7 +2,7 @@ pipeline{
     agent none
     parameters{
         choice(name:'VERSION', choices:['1.1.0','1.2.0','1.3.0'], description:'version of the code')
-        booleanParam(name:'ExecuteTests', defaultvalue: true, description: 'tc validity')
+        booleanParam(name:'ExecuteTests', defaultValue: true, description: 'tc validity')
     }
     tools{
         jdk 'myjava'
