@@ -53,7 +53,7 @@ pipeline{
             steps{
                 script{
                     echo "Deploying the code"
-                    echo "Deploying the version ${param.Version}"
+                    echo "Deploying version ${param.VERSION}"
                 }
             }
         }
