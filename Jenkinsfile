@@ -1,7 +1,7 @@
 pipeline{
     agent none
     parameters{
-        choice{name:'VERSION', choices:['1.1.0','1.2.0','1.3.0'], description:'version of the code'}
+        choice(name:'VERSION', choices:['1.1.0','1.2.0','1.3.0'], description:'version of the code')
         booleanparam(name:'ExecuteTests', defaultvalue: true, description: 'tc validity')
     }
     tools{
