@@ -1,0 +1,45 @@
+pipeline{
+    agent any
+    parameters{
+        string(name:'Env',defaultValue:'Test',description:'version to deploy')
+        booleanParam(name:'executeTests',defaultValue: true,description:'decide to run TC')
+        choice(name:'APPVERSION',choices:['1.1','1.2','1.3'])
+    }
+    stages{        
+        stage('compile'){
+            steps{
+                script{
+                    echo "Compiling the code"
+                }
+            }
+        }
+        stage('UnitTest'){
+            when{
+                expression{
+                    params.executeTests == true
+                }
+            }
+            steps{
+                script{
+                    echo "Testing the code in ${params.Env} env"
+                }
+            }
+        }
+        stage('Package'){
+            input{
+                message "Select the version to the package"
+                ok "Version Selected"
+                parameters{
+                    choice(name:'NEWVERSION',choices:['2.1','2.2','2.3'])
+                }
+            }
+            steps{
+                script{
+                    echo "Package the code ${NEWVERSION}"
+
+                    echo "Package the code ${params.APPVERSION}"
+                }
+            }
+        }
+    }
+}
