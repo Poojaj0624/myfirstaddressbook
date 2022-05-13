@@ -62,7 +62,7 @@ pipeline{
             }
             steps{
                 script{
-                    echo "BUILDING THE DOCKER IMAGEs"
+                    echo "BUILDING THE DOCKER IMAGE"
                     echo "Deploying version ${params.VERSION}"
                     withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
                     sh 'sudo docker build -t poojaj2406/myownimage:$BUILD_NUMBER .'
