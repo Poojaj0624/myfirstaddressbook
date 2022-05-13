@@ -40,7 +40,7 @@ pipeline{
             }
         }
         stage("PACKAGE"){
-            agent{label 'linux_slave'}
+            agent any
             when{
                 expression{
                     BRANCH_NAME == 'main'
