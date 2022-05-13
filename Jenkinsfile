@@ -1,26 +1,36 @@
 pipeline{
     agent none
+    parameters{
+        choice(name:'VERSION',choices:['1.1.0','1.2.0','1.3.0'],description:'version of the code')
+        booleanParam(name:'ExecuteTests',defaultValue: true,description: 'tc validity')
+    }
     tools{
         jdk 'myjava'
         maven 'mymaven'
     }
     stages{
         stage("COMPILE"){
-            agent any
+            agent{
+                label 'linux_slave'
+            }
             steps{
                 script{
-                  echo "COMPILIG THE CODE"
-                  sh 'mvn compile'
+                    echo "Compliling the code"
+                    sh 'mvn compile'
                 }
             }
         }
-        stage("UNITTEST"){
-            //agent {label 'linux_slave'}
+        stage("TEST"){
             agent any
-         steps{
-           script{
-               echo "Testing THE CODE"
-                sh 'mvn test'
+            when{
+                expression{
+                    params.ExecuteTests == true
+                }
+            }
+            steps{
+                script{
+                    echo "Testing the code"
+                    sh 'mvn test'
                 }
             }
             post{
@@ -30,16 +40,22 @@ pipeline{
             }
         }
         stage("PACKAGE"){
+            agent{label 'linux_slave'}
+            steps{
+                script{
+                    echo "packaging the code"
+                    sh 'mvn package'
+                }
+            }
+        }
+        stage("DEPLOY"){
             agent any
             steps{
-            script{
-                echo "Packaging THE CODE"
-                sshagent(['BUILD_SERVER_KEY']) {
-                sh "scp -o StrictHostKeyChecking=no server-script.sh ec2-user@172.31.8.7:/home/ec2-user"
-                sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.8.7 'bash ~/server-script.sh'"
-              }
+                script{
+                    echo "Deploying the code"
+                    echo "Deploying version ${params.VERSION}"
+                }
+            }
         }
-    }
-}     
     }
 }
