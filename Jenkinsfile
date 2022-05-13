@@ -41,6 +41,11 @@ pipeline{
         }
         stage("PACKAGE"){
             agent{label 'linux_slave'}
+            when{
+                expression{
+                    BRANCH_NAME == 'main'
+                }
+            }
             steps{
                 script{
                     echo "packaging the code"
@@ -50,6 +55,11 @@ pipeline{
         }
         stage("DEPLOY"){
             agent any
+            when{
+                expression{
+                    BRANCH_NAME == 'main'
+                }
+            }
             steps{
                 script{
                     echo "Deploying the code"
