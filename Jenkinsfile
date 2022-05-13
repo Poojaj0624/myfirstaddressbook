@@ -53,6 +53,25 @@ pipeline{
                 }
             }
         }
+        stage("BUILD THE DOCKER IMAGE"){
+            agent any
+            when{
+                expression{
+                    BRANCH_NAME == 'main'
+                }
+            }
+            steps{
+                script{
+                    echo "BUILDING THE DOCKER IMAGE"
+                    echo "Deploying version ${params.VERSION}"
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                    sh 'sudo docker build -t poojaj2406/myownimage:$BUILD_NUMBER .'
+                    sh 'sudo docker login -u $USERNAME -p $PASSWORD'
+                    sh 'sudo docker push poojaj2406/myownimage:$BUILD_NUMBER'
+                    }
+                }
+            }
+        }
         stage("DEPLOY"){
             agent any
             when{
