@@ -1,29 +1,30 @@
 pipeline{
-    agent any
+    agent none
+    parameters{
+        choice(name:'VERSION',choices:['1.1.0','1.2.0','1.3.0'],description:'version of the code')
+        booleanParam(name:'ExecuteTests',defaultValue: true,description: 'tc validity')
+    }
     tools{
         jdk 'myjava'
         maven 'mymaven'
     }
-    environment{
-        APP_NAME='java-mvn-app'
-    }
-    parameters{
-        choice(name:'VERSION',choices:['1.1.0','1.2.0','1.3.0'],description:'version of the code')
-        booleanParam(name: 'executeTests',defaultValue: true,description:'tc validity')
-    }
     stages{
-        stage("COMPILE"){          
+        stage("COMPILE"){
+            agent{
+                label 'linux_slave'
+            }
             steps{
                 script{
-                    echo "Compiling the code"
+                    echo "Compliling the code"
                     sh 'mvn compile'
                 }
             }
         }
-        stage("UNITTEST"){           
+        stage("TEST"){
+            agent any
             when{
                 expression{
-                    params.executeTests == true
+                    params.ExecuteTests == true
                 }
             }
             steps{
@@ -38,35 +39,23 @@ pipeline{
                 }
             }
         }
-         stage("PACKAGE"){
-                     steps{
+        stage("PACKAGE"){
+            agent{label 'linux_slave'}
+            steps{
                 script{
-                    echo "Packaging the code"
+                    echo "packaging the code"
                     sh 'mvn package'
                 }
             }
         }
-         stage("BUILD THE DOCKER IMAGE"){       
+        stage("DEPLOY"){
+            agent any
             steps{
                 script{
-                    echo "BUILDING THE DOCKER IMAGE"
+                    echo "Deploying the code"
                     echo "Deploying version ${params.VERSION}"
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                        sh 'sudo docker build -t devopstrainer/java-mvn-privaterepos:$BUILD_NUMBER .'
-                        sh 'sudo sudo docker login -u $USER -p $PASS'
-                        sh 'sudo docker push devopstrainer/java-mvn-privaterepos:$BUILD_NUMBER'
                 }
             }
         }
-         }
-        stage("DEPLOYONec2"){
-             steps{
-                script{
-                    echo "Deploying the app"
-                    echo "Deploying version ${params.VERSION}"
-                    sh 'sudo docker run -itd - P devopstrainer/java-mvn-privaterepos:$BUILD_NUMBER'
-                }
-            }
     }
-}
 }
