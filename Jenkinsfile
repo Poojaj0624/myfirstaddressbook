@@ -10,9 +10,7 @@ pipeline{
     }
     stages{
         stage("COMPILE"){
-            agent{
-                label 'linux_slave'
-            }
+            agent any
             steps{
                 script{
                     echo "Compliling the code"
