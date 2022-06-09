@@ -1,5 +1,5 @@
 pipeline{
-    agent none
+    agent any
     parameters{
         choice(name:'VERSION',choices:['1.1.0','1.2.0','1.3.0'],description:'version of the code')
         booleanParam(name:'ExecuteTests',defaultValue: true,description: 'tc validity')
@@ -10,7 +10,6 @@ pipeline{
     }
     stages{
         stage("COMPILE"){
-            agent any
             steps{
                 script{
                     echo "Compliling the code"
@@ -19,7 +18,6 @@ pipeline{
             }
         }
         stage("TEST"){
-            agent any
             when{
                 expression{
                     params.ExecuteTests == true
@@ -38,7 +36,6 @@ pipeline{
             }
         }
         stage("PACKAGE"){
-            agent any
             when{
                 expression{
                     BRANCH_NAME == 'main'
@@ -52,7 +49,6 @@ pipeline{
             }
         }
         stage("BUILD THE DOCKER IMAGE"){
-            agent any
             when{
                 expression{
                     BRANCH_NAME == 'main'
@@ -71,6 +67,7 @@ pipeline{
             }
         }
         stage("Provision ec2-server with TF"){
+
             steps{
                 script{
                     dir('terraform'){
@@ -87,7 +84,6 @@ pipeline{
            
         }
         stage("DEPLOY"){
-            agent any
             when{
                 expression{
                     BRANCH_NAME == 'main'
