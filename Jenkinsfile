@@ -70,6 +70,22 @@ pipeline{
                 }
             }
         }
+        stage("Provision ec2-server with TF"){
+            steps{
+                script{
+                    dir('terraform'){
+                      sh 'terraform init'
+                      sh 'terraform apply --auto-approve'
+                      EC2_PUBLIC_IP = sh(
+                          "terraform output ec2-ip",
+                          returnStdout: true
+                      ).trim()
+                    }
+                  
+                }
+            }
+           
+        }
         stage("DEPLOY"){
             agent any
             when{
@@ -79,14 +95,15 @@ pipeline{
             }
             steps{
                 script{
-                    echo "Deploying the code"
+                    sleep(time: 90, unit: "SECONDS")
+                    echo "Ec2 instance created"
+                    echo "${EC2_PUBLIC_IP}"
+                    echo "Deploying on an ec2-instance created by terraform"
                     echo "Deploying version ${params.VERSION}"
                     sshagent(['deploy-server-key']) {
                       withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo amazon-linux-extras install docker -y' "
-                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo systemctl start docker' "
-                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo docker login -u $USERNAME -p $PASSWORD'"
-                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo docker run -itd -P poojaj2406/myownimage:$BUILD_NUMBER' "
+                      sh "ssh -o StrictHostKeyChecking=no ec2-user@${EC2_PUBLIC_IP} 'sudo docker login -u $USERNAME -p $PASSWORD'"
+                      sh "ssh -o StrictHostKeyChecking=no ec2-user@${EC2_PUBLIC_IP} 'sudo docker run -itd -P poojaj2406/myownimage:$BUILD_NUMBER' "
 
                     }
                     }
