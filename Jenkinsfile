@@ -83,6 +83,15 @@ pipeline{
                 script{
                     echo "Deploying the code"
                     echo "Deploying version ${params.VERSION}"
+                    sshagent(['deploy-server-key']) {
+                      withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo amazon-linux-extras install docker -y' "
+                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo systemctl start docker -y' "
+                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo docker login -u $USERNAME -p $PASSWORD'"
+                      sh "ssh -o StrictHostKeyChecking=no ec2-user@54.225.3.183 'sudo docker run -itd -P poojaj2406/myownimage:$BUILD_NUMBER' "
+
+                    }
+                    }
                 }
             }
         }
